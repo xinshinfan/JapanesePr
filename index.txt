@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日语单词练习</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        #word, #sentence, #meaning {
+            font-size: 24px;
+            margin: 20px 0;
+        }
+        #input {
+            font-size: 18px;
+            padding: 5px;
+            width: 200px;
+        }
+        button {
+            font-size: 18px;
+            padding: 5px 10px;
+            margin: 10px;
+        }
+        #result {
+            font-size: 20px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        #progress {
+            font-size: 18px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>日语单词练习</h1>
+    <div id="progress"></div>
+    <div id="word"></div>
+    <div id="meaning"></div>
+    <div id="sentence"></div>
+    <button onclick="playWord()">播放单词</button>
+    <button onclick="playSentence()">播放例句</button>
+    <br>
+    <input type="text" id="input" placeholder="输入单词">
+    <button onclick="checkAnswer()">检查</button>
+    <button onclick="nextWord()">下一个</button>
+    <div id="result"></div>
+
+    <script type="text/javascript" src="cordova.js"></script>
+    <script>
+        const words = [
+            { word: "こんにちは", sentence: "こんにちは、お元気ですか？", meaning: "你好" },
+            { word: "ありがとう", sentence: "ありがとう、助かりました。", meaning: "谢谢" },
+            { word: "さようなら", sentence: "さようなら、また明日。", meaning: "再见" },
+            { word: "おはよう", sentence: "おはよう、良い一日を。", meaning: "早上好" },
+            { word: "すみません", sentence: "すみません、道を教えてください。", meaning: "对不起" },
+            { word: "いただきます", sentence: "いただきます、美味しそうですね。", meaning: "我开动了" },
+            { word: "ごちそうさま", sentence: "ごちそうさま、とても美味しかったです。", meaning: "多谢款待" },
+            { word: "はい", sentence: "はい、そうです。", meaning: "是的" },
+            { word: "いいえ", sentence: "いいえ、違います。", meaning: "不是" },
+            { word: "お願いします", sentence: "お願いします、これを手伝ってください。", meaning: "拜托了" }
+        ];
+
+        let currentWordIndex = 0;
+        let currentGroupIndex = 0;
+        let isLearningPhase = true;
+        let media = null;
+
+        function loadWord() {
+            const wordElement = document.getElementById("word");
+            const meaningElement = document.getElementById("meaning");
+            const sentenceElement = document.getElementById("sentence");
+            const currentWord = words[currentWordIndex];
+
+            wordElement.textContent = isLearningPhase ? currentWord.word : "______";
+            meaningElement.textContent = currentWord.meaning;
+            sentenceElement.textContent = currentWord.sentence;
+
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const progressElement = document.getElementById("progress");
+            const currentGroup = Math.floor(currentWordIndex / 5) + 1;
+            const totalGroups = Math.ceil(words.length / 5);
+            const phase = isLearningPhase ? "学习" : "默写";
+            progressElement.textContent = `第${currentGroup}组 / 共${totalGroups}组 | ${phase}阶段`;
+        }
+
+        function playAudio(text) {
+            const url = `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(text)}&le=jap`;
+            if (media) {
+                media.release();
+            }
+            media = new Media(url,
+                function () {
+                    console.log("Audio played successfully");
+                },
+                function (err) {
+                    console.log("Error playing audio: " + err.code);
+                }
+            );
+            media.play();
+        }
+
+        function playWord() {
+            playAudio(words[currentWordIndex].word);
+        }
+
+        function playSentence() {
+            playAudio(words[currentWordIndex].sentence);
+        }
+
+        function checkAnswer() {
+            const input = document.getElementById("input");
+            const result = document.getElementById("result");
+            const currentWord = words[currentWordIndex];
+
+            if (input.value === currentWord.word) {
+                result.textContent = "正确！";
+                result.style.color = "green";
+            } else {
+                result.textContent = "错误，正确答案是：" + currentWord.word;
+                result.style.color = "red";
+            }
+        }
+
+        function nextWord() {
+            currentWordIndex++;
+            if (currentWordIndex >= words.length) {
+                if (isLearningPhase) {
+                    isLearningPhase = false;
+                    currentWordIndex = 0;
+                } else {
+                    currentWordIndex = 0;
+                    isLearningPhase = true;
+                    alert("恭喜！您已完成所有单词的学习和默写。");
+                }
+            }
+
+            loadWord();
+            document.getElementById("input").value = "";
+            document.getElementById("result").textContent = "";
+        }
+
+        function saveProgress() {
+            localStorage.setItem("currentWordIndex", currentWordIndex);
+            localStorage.setItem("isLearningPhase", isLearningPhase);
+        }
+
+        function loadProgress() {
+            const savedIndex = localStorage.getItem("currentWordIndex");
+            const savedPhase = localStorage.getItem("isLearningPhase");
+            if (savedIndex !== null) {
+                currentWordIndex = parseInt(savedIndex);
+            }
+            if (savedPhase !== null) {
+                isLearningPhase = savedPhase === "true";
+            }
+        }
+
+        document.addEventListener('deviceready', function() {
+            loadProgress();
+            loadWord();
+        }, false);
+
+        window.onbeforeunload = function() {
+            saveProgress();
+        }
+    </script>
+</body>
+</html>
