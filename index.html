@@ -66,7 +66,9 @@
         ];
 
         let currentWordIndex = 0;
+        let currentGroupIndex = 0;
         let isLearningPhase = true;
+        let audio = new Audio();
 
         function loadWord() {
             const wordElement = document.getElementById("word");
@@ -91,11 +93,8 @@
 
         function playAudio(text) {
             const url = `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(text)}&le=jap`;
-            const audio = new Audio(url);
-            audio.play().catch(e => {
-                console.log("Error playing audio:", e);
-                alert("无法播放音频，请检查网络连接或API可用性。");
-            });
+            audio.src = url;
+            audio.play().catch(e => console.log("播放失败:", e));
         }
 
         function playWord() {
@@ -138,9 +137,30 @@
             document.getElementById("result").textContent = "";
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
+        function saveProgress() {
+            localStorage.setItem("currentWordIndex", currentWordIndex);
+            localStorage.setItem("isLearningPhase", isLearningPhase);
+        }
+
+        function loadProgress() {
+            const savedIndex = localStorage.getItem("currentWordIndex");
+            const savedPhase = localStorage.getItem("isLearningPhase");
+            if (savedIndex !== null) {
+                currentWordIndex = parseInt(savedIndex);
+            }
+            if (savedPhase !== null) {
+                isLearningPhase = savedPhase === "true";
+            }
+        }
+
+        window.onload = function() {
+            loadProgress();
             loadWord();
-        });
+        };
+
+        window.onbeforeunload = function() {
+            saveProgress();
+        };
     </script>
 </body>
 </html>
