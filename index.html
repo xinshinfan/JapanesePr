@@ -66,9 +66,7 @@
         ];
 
         let currentWordIndex = 0;
-        let currentGroupIndex = 0;
         let isLearningPhase = true;
-        let media = null;
 
         function loadWord() {
             const wordElement = document.getElementById("word");
@@ -93,18 +91,11 @@
 
         function playAudio(text) {
             const url = `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(text)}&le=jap`;
-            if (media) {
-                media.release();
-            }
-            media = new Media(url,
-                function () {
-                    console.log("Audio played successfully");
-                },
-                function (err) {
-                    console.log("Error playing audio: " + err.code);
-                }
-            );
-            media.play();
+            const audio = new Audio(url);
+            audio.play().catch(e => {
+                console.log("Error playing audio:", e);
+                alert("无法播放音频，请检查网络连接或API可用性。");
+            });
         }
 
         function playWord() {
