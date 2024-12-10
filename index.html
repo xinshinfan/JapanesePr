@@ -51,7 +51,6 @@
     <button onclick="nextWord()">下一个</button>
     <div id="result"></div>
 
-    <script type="text/javascript" src="cordova.js"></script>
     <script>
         const words = [
             { word: "こんにちは", sentence: "こんにちは、お元気ですか？", meaning: "你好" },
@@ -148,30 +147,9 @@
             document.getElementById("result").textContent = "";
         }
 
-        function saveProgress() {
-            localStorage.setItem("currentWordIndex", currentWordIndex);
-            localStorage.setItem("isLearningPhase", isLearningPhase);
-        }
-
-        function loadProgress() {
-            const savedIndex = localStorage.getItem("currentWordIndex");
-            const savedPhase = localStorage.getItem("isLearningPhase");
-            if (savedIndex !== null) {
-                currentWordIndex = parseInt(savedIndex);
-            }
-            if (savedPhase !== null) {
-                isLearningPhase = savedPhase === "true";
-            }
-        }
-
-        document.addEventListener('deviceready', function() {
-            loadProgress();
+        document.addEventListener('DOMContentLoaded', function() {
             loadWord();
-        }, false);
-
-        window.onbeforeunload = function() {
-            saveProgress();
-        }
+        });
     </script>
 </body>
 </html>
