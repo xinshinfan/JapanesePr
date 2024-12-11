@@ -57,15 +57,19 @@
         let isLearningPhase = true;
         let audio = new Audio();
 
-        async function loadWords() {
-            try {
-                const response = await fetch('words.json');
-                words = await response.json();
-                loadProgress();
-                loadWord();
-            } catch (error) {
-                console.error("加载单词数据失败:", error);
-            }
+        function loadWords() {
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', 'words.json', true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    words = JSON.parse(xhr.responseText);
+                    loadProgress();
+                    loadWord();
+                } else if (xhr.readyState === 4) {
+                    console.error("加载单词数据失败:", xhr.statusText);
+                }
+            };
+            xhr.send();
         }
 
         function loadWord() {
