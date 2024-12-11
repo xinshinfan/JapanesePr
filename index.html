@@ -43,12 +43,12 @@
     <div id="word"></div>
     <div id="meaning"></div>
     <div id="sentence"></div>
-    <button onclick="playWord()">播放单词</button>
-    <button onclick="playSentence()">播放例句</button>
+    <button onclick="playWord()" accesskey="W">播放单词</button>
+    <button onclick="playSentence()" accesskey="S">播放例句</button>
     <br>
     <input type="text" id="input" placeholder="输入单词">
-    <button onclick="checkAnswer()">检查</button>
-    <button onclick="nextWord()">下一个</button>
+    <button onclick="checkAnswer()" accesskey="C">检查</button>
+    <button onclick="nextWord()" accesskey="N">下一个</button>
     <div id="result"></div>
 
     <script>
@@ -88,7 +88,7 @@
             const currentGroup = Math.floor(currentWordIndex / 5) + 1;
             const totalGroups = Math.ceil(words.length / 5);
             const phase = isLearningPhase ? "学习" : "默写";
-            progressElement.textContent = `第${currentGroup}组 / 共${totalGroups}组 | ${phase}阶段`;
+            progressElement.textContent = `第${currentGroup}组 / 共${totalGroups}組 | ${phase}阶段`;
         }
 
         function playAudio(text) {
@@ -153,6 +153,26 @@
             }
         }
 
+        document.addEventListener('keydown', function(event) {
+            switch (event.key.toUpperCase()) {
+                case 'W': // 播放单词
+                    playWord();
+                    break;
+                case 'S': // 播放例句
+                    playSentence();
+                    break;
+                case 'C': // 检查答案
+                    checkAnswer();
+                    break;
+                case 'N': // 下一个单词
+                    nextWord();
+                    break;
+                default:
+                    // 忽略其他按键
+                    break;
+            }
+        });
+
         window.onload = function() {
             loadProgress();
             loadWord();
@@ -164,3 +184,5 @@
     </script>
 </body>
 </html>
+
+这个完整的HTML文件包含了键盘快捷键的功能。用户可以
