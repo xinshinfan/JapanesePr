@@ -52,25 +52,25 @@
     <div id="result"></div>
 
     <script>
-        const words = [
-            { word: "こんにちは", sentence: "こんにちは、お元気ですか？", meaning: "你好" },
-            { word: "ありがとう", sentence: "ありがとう、助かりました。", meaning: "谢谢" },
-            { word: "さようなら", sentence: "さようなら、また明日。", meaning: "再见" },
-            { word: "おはよう", sentence: "おはよう、良い一日を。", meaning: "早上好" },
-            { word: "すみません", sentence: "すみません、道を教えてください。", meaning: "对不起" },
-            { word: "いただきます", sentence: "いただきます、美味しそうですね。", meaning: "我开动了" },
-            { word: "ごちそうさま", sentence: "ごちそうさま、とても美味しかったです。", meaning: "多谢款待" },
-            { word: "はい", sentence: "はい、そうです。", meaning: "是的" },
-            { word: "いいえ", sentence: "いいえ、違います。", meaning: "不是" },
-            { word: "お願いします", sentence: "お願いします、これを手伝ってください。", meaning: "拜托了" }
-        ];
-
+        let words = [];
         let currentWordIndex = 0;
-        let currentGroupIndex = 0;
         let isLearningPhase = true;
         let audio = new Audio();
 
+        async function loadWords() {
+            try {
+                const response = await fetch('words.json');
+                words = await response.json();
+                loadProgress();
+                loadWord();
+            } catch (error) {
+                console.error("加载单词数据失败:", error);
+            }
+        }
+
         function loadWord() {
+            if (words.length === 0) return;
+
             const wordElement = document.getElementById("word");
             const meaningElement = document.getElementById("meaning");
             const sentenceElement = document.getElementById("sentence");
@@ -88,7 +88,7 @@
             const currentGroup = Math.floor(currentWordIndex / 5) + 1;
             const totalGroups = Math.ceil(words.length / 5);
             const phase = isLearningPhase ? "学习" : "默写";
-            progressElement.textContent = `第${currentGroup}组 / 共${totalGroups}組 | ${phase}阶段`;
+            progressElement.textContent = `第${currentGroup}組 / 共${totalGroups}組 | ${phase}阶段`;
         }
 
         function playAudio(text) {
@@ -98,10 +98,12 @@
         }
 
         function playWord() {
+            if (words.length === 0) return;
             playAudio(words[currentWordIndex].word);
         }
 
         function playSentence() {
+            if (words.length === 0) return;
             playAudio(words[currentWordIndex].sentence);
         }
 
@@ -174,8 +176,7 @@
         });
 
         window.onload = function() {
-            loadProgress();
-            loadWord();
+            loadWords();
         };
 
         window.onbeforeunload = function() {
@@ -184,5 +185,3 @@
     </script>
 </body>
 </html>
-
-这个完整的HTML文件包含了键盘快捷键的功能。用户可以
